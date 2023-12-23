@@ -11,7 +11,7 @@ Wait a minute! The authors are working day and night 💪, to make the code and 
 We anticipate the code will be out * **in one week** *. -->
 
 <!-- * 4/26: SimCSE is now on [Gradio Web Demo](https://gradio.app/g/AK391/SimCSE) (Thanks [@AK391](https://github.com/AK391)!). Try it out! -->
-* 8/31: Our paper has been accepted to EMNLP! Please check out our [updated paper](https://arxiv.org/pdf/2104.08821.pdf) (with updated numbers and baselines). 
+* 8/31: Our paper has been accepted to EMNLP! Please check out our [updated paper](https://arxiv.org/pdf/2104.08821.pdf) (with updated numbers and baselines).
 * 5/12: We updated our [unsupervised models](#model-list) with new hyperparameters and better performance.
 * 5/10: We released our [sentence embedding tool](#getting-started) and [demo code](./demo).
 * 4/23: We released our [training code](#training).
@@ -58,7 +58,7 @@ After installing the package, you can load our model by just two lines of code
 from simcse import SimCSE
 model = SimCSE("princeton-nlp/sup-simcse-bert-base-uncased")
 ```
-See [model list](#model-list) for a full list of available models. 
+See [model list](#model-list) for a full list of available models.
 
 Then you can use our model for **encoding sentences into embeddings**
 ```python
@@ -83,11 +83,11 @@ We also support [faiss](https://github.com/facebookresearch/faiss), an efficient
 
 **WARNING**: We have found that `faiss` did not well support Nvidia AMPERE GPUs (3090 and A100). In that case, you should change to other GPUs or install the CPU version of `faiss` package.
 
-We also provide an easy-to-build [demo website](./demo) to show how SimCSE can be used in sentence retrieval. The code is based on [DensePhrases](https://arxiv.org/abs/2012.12624)' [repo](https://github.com/princeton-nlp/DensePhrases) and [demo](http://densephrases.korea.ac.kr) (a lot of thanks to the authors of DensePhrases). 
+We also provide an easy-to-build [demo website](./demo) to show how SimCSE can be used in sentence retrieval. The code is based on [DensePhrases](https://arxiv.org/abs/2012.12624)' [repo](https://github.com/princeton-nlp/DensePhrases) and [demo](http://densephrases.korea.ac.kr) (a lot of thanks to the authors of DensePhrases).
 
 ## Model List
 
-Our released models are listed as following. You can import these models by using the `simcse` package or using [HuggingFace's Transformers](https://github.com/huggingface/transformers). 
+Our released models are listed as following. You can import these models by using the `simcse` package or using [HuggingFace's Transformers](https://github.com/huggingface/transformers).
 |              Model              | Avg. STS |
 |:-------------------------------|:--------:|
 |  [princeton-nlp/unsup-simcse-bert-base-uncased](https://huggingface.co/princeton-nlp/unsup-simcse-bert-base-uncased) |   76.25 |

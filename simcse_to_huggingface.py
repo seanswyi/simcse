@@ -3,9 +3,10 @@ Convert SimCSE's checkpoints to Huggingface style.
 """
 
 import argparse
-import torch
-import os
 import json
+import os
+
+import torch
 
 
 def main():
@@ -15,7 +16,9 @@ def main():
 
     print("SimCSE checkpoint -> Huggingface checkpoint for {}".format(args.path))
 
-    state_dict = torch.load(os.path.join(args.path, "pytorch_model.bin"), map_location=torch.device("cpu"))
+    state_dict = torch.load(
+        os.path.join(args.path, "pytorch_model.bin"), map_location=torch.device("cpu")
+    )
     new_state_dict = {}
     for key, param in state_dict.items():
         # Replace "mlp" to "pooler"
@@ -35,7 +38,9 @@ def main():
     # Change architectures in config.json
     config = json.load(open(os.path.join(args.path, "config.json")))
     for i in range(len(config["architectures"])):
-        config["architectures"][i] = config["architectures"][i].replace("ForCL", "Model")
+        config["architectures"][i] = config["architectures"][i].replace(
+            "ForCL", "Model"
+        )
     json.dump(config, open(os.path.join(args.path, "config.json"), "w"), indent=2)
 
 

@@ -12,18 +12,25 @@ Classifiers include Logistic Regression and MLP
 
 from __future__ import absolute_import, division, unicode_literals
 
-import numpy as np
 import copy
-from senteval import utils
 
+import numpy as np
 import torch
-from torch import nn
 import torch.nn.functional as F
+from senteval import utils
+from torch import nn
 
 
 class PyTorchClassifier(object):
-    def __init__(self, inputdim, nclasses, l2reg=0., batch_size=64, seed=1111,
-                 cudaEfficient=False):
+    def __init__(
+        self,
+        inputdim,
+        nclasses,
+        l2reg=0.0,
+        batch_size=64,
+        seed=1111,
+        cudaEfficient=False,
+    ):
         # fix seed
         np.random.seed(seed)
         torch.manual_seed(seed)
@@ -43,12 +50,12 @@ class PyTorchClassifier(object):
             devX, devy = validation_data
         else:
             permutation = np.random.permutation(len(X))
-            trainidx = permutation[int(validation_split * len(X)):]
-            devidx = permutation[0:int(validation_split * len(X))]
+            trainidx = permutation[int(validation_split * len(X)) :]
+            devidx = permutation[0 : int(validation_split * len(X))]
             trainX, trainy = X[trainidx], y[trainidx]
             devX, devy = X[devidx], y[devidx]
 
-        device = torch.device('cpu') if self.cudaEfficient else torch.device('cuda')
+        device = torch.device("cpu") if self.cudaEfficient else torch.device("cuda")
 
         trainX = torch.from_numpy(trainX).to(device, dtype=torch.float32)
         trainy = torch.from_numpy(trainy).to(device, dtype=torch.int64)
@@ -57,16 +64,16 @@ class PyTorchClassifier(object):
 
         return trainX, trainy, devX, devy
 
-    def fit(self, X, y, validation_data=None, validation_split=None,
-            early_stop=True):
+    def fit(self, X, y, validation_data=None, validation_split=None, early_stop=True):
         self.nepoch = 0
         bestaccuracy = -1
         stop_train = False
         early_stop_count = 0
 
         # Preparing validation data
-        trainX, trainy, devX, devy = self.prepare_split(X, y, validation_data,
-                                                        validation_split)
+        trainX, trainy, devX, devy = self.prepare_split(
+            X, y, validation_data, validation_split
+        )
 
         # Training
         while not stop_train and self.nepoch <= self.max_epoch:
@@ -89,7 +96,11 @@ class PyTorchClassifier(object):
             all_costs = []
             for i in range(0, len(X), self.batch_size):
                 # forward
-                idx = torch.from_numpy(permutation[i:i + self.batch_size]).long().to(X.device)
+                idx = (
+                    torch.from_numpy(permutation[i : i + self.batch_size])
+                    .long()
+                    .to(X.device)
+                )
 
                 Xbatch = X[idx]
                 ybatch = y[idx]
@@ -116,8 +127,8 @@ class PyTorchClassifier(object):
             devy = torch.LongTensor(devy).cuda()
         with torch.no_grad():
             for i in range(0, len(devX), self.batch_size):
-                Xbatch = devX[i:i + self.batch_size]
-                ybatch = devy[i:i + self.batch_size]
+                Xbatch = devX[i : i + self.batch_size]
+                ybatch = devy[i : i + self.batch_size]
                 if self.cudaEfficient:
                     Xbatch = Xbatch.cuda()
                     ybatch = ybatch.cuda()
@@ -134,10 +145,9 @@ class PyTorchClassifier(object):
         yhat = np.array([])
         with torch.no_grad():
             for i in range(0, len(devX), self.batch_size):
-                Xbatch = devX[i:i + self.batch_size]
+                Xbatch = devX[i : i + self.batch_size]
                 output = self.model(Xbatch)
-                yhat = np.append(yhat,
-                                 output.data.max(1)[1].cpu().numpy())
+                yhat = np.append(yhat, output.data.max(1)[1].cpu().numpy())
         yhat = np.vstack(yhat)
         return yhat
 
@@ -146,7 +156,7 @@ class PyTorchClassifier(object):
         probas = []
         with torch.no_grad():
             for i in range(0, len(devX), self.batch_size):
-                Xbatch = devX[i:i + self.batch_size]
+                Xbatch = devX[i : i + self.batch_size]
                 vals = F.softmax(self.model(Xbatch).data.cpu().numpy())
                 if not probas:
                     probas = vals
@@ -159,11 +169,21 @@ class PyTorchClassifier(object):
 MLP with Pytorch (nhid=0 --> Logistic Regression)
 """
 
+
 class MLP(PyTorchClassifier):
-    def __init__(self, params, inputdim, nclasses, l2reg=0., batch_size=64,
-                 seed=1111, cudaEfficient=False):
-        super(self.__class__, self).__init__(inputdim, nclasses, l2reg,
-                                             batch_size, seed, cudaEfficient)
+    def __init__(
+        self,
+        params,
+        inputdim,
+        nclasses,
+        l2reg=0.0,
+        batch_size=64,
+        seed=1111,
+        cudaEfficient=False,
+    ):
+        super(self.__class__, self).__init__(
+            inputdim, nclasses, l2reg, batch_size, seed, cudaEfficient
+        )
         """
         PARAMETERS:
         -nhid:       number of hidden units (0: Logistic Regression)
@@ -179,7 +199,7 @@ class MLP(PyTorchClassifier):
         self.tenacity = 5 if "tenacity" not in params else params["tenacity"]
         self.epoch_size = 4 if "epoch_size" not in params else params["epoch_size"]
         self.max_epoch = 200 if "max_epoch" not in params else params["max_epoch"]
-        self.dropout = 0. if "dropout" not in params else params["dropout"]
+        self.dropout = 0.0 if "dropout" not in params else params["dropout"]
         self.batch_size = 64 if "batch_size" not in params else params["batch_size"]
 
         if params["nhid"] == 0:
@@ -199,4 +219,4 @@ class MLP(PyTorchClassifier):
 
         optim_fn, optim_params = utils.get_optimizer(self.optim)
         self.optimizer = optim_fn(self.model.parameters(), **optim_params)
-        self.optimizer.param_groups[0]['weight_decay'] = self.l2reg
+        self.optimizer.param_groups[0]["weight_decay"] = self.l2reg

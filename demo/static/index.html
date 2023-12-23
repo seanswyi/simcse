@@ -96,20 +96,20 @@
     var last_timestamp = new Date().getTime();
 
     $(function(){
-        $('#threshold').bind('input propertychange', function() {  
+        $('#threshold').bind('input propertychange', function() {
             $('#threshold_value').html("Threshold: " + $(this).val());
-            last_timestamp = new Date().getTime(); 
-        }); 
-        $('#top_k').bind('input propertychange', function() {  
-            $('#top_k_value').html("Top K: " + $(this).val()); 
             last_timestamp = new Date().getTime();
-        });  
-        $('#threshold').on('change', function() {  
+        });
+        $('#top_k').bind('input propertychange', function() {
+            $('#top_k_value').html("Top K: " + $(this).val());
+            last_timestamp = new Date().getTime();
+        });
+        $('#threshold').on('change', function() {
             $("#search").click();
-        }); 
-        $('#top_k').on('change', function() {  
+        });
+        $('#top_k').on('change', function() {
             $("#search").click();
-        }); 
+        });
     });
 
     $("#question").keypress(function (e) {

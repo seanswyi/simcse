@@ -1,4 +1,4 @@
-## Demo of SimCSE 
+## Demo of SimCSE
 Several demos are available for people to play with our pre-trained SimCSE.
 
 ### Flask Demo

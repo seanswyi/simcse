@@ -11,33 +11,32 @@ Semantic Relatedness (supervised) with Pytorch
 from __future__ import absolute_import, division, unicode_literals
 
 import copy
+
 import numpy as np
-
 import torch
-from torch import nn
 import torch.optim as optim
-
 from scipy.stats import pearsonr, spearmanr
+from torch import nn
 
 
 class RelatednessPytorch(object):
     # Can be used for SICK-Relatedness, and STS14
     def __init__(self, train, valid, test, devscores, config):
         # fix seed
-        np.random.seed(config['seed'])
-        torch.manual_seed(config['seed'])
-        assert torch.cuda.is_available(), 'torch.cuda required for Relatedness'
-        torch.cuda.manual_seed(config['seed'])
+        np.random.seed(config["seed"])
+        torch.manual_seed(config["seed"])
+        assert torch.cuda.is_available(), "torch.cuda required for Relatedness"
+        torch.cuda.manual_seed(config["seed"])
 
         self.train = train
         self.valid = valid
         self.test = test
         self.devscores = devscores
 
-        self.inputdim = train['X'].shape[1]
-        self.nclasses = config['nclasses']
-        self.seed = config['seed']
-        self.l2reg = 0.
+        self.inputdim = train["X"].shape[1]
+        self.nclasses = config["nclasses"]
+        self.seed = config["seed"]
+        self.l2reg = 0.0
         self.batch_size = 64
         self.maxepoch = 1000
         self.early_stop = True
@@ -53,8 +52,7 @@ class RelatednessPytorch(object):
             self.loss_fn = self.loss_fn.cuda()
 
         self.loss_fn.size_average = False
-        self.optimizer = optim.Adam(self.model.parameters(),
-                                    weight_decay=self.l2reg)
+        self.optimizer = optim.Adam(self.model.parameters(), weight_decay=self.l2reg)
 
     def prepare_data(self, trainX, trainy, devX, devy, testX, testy):
         # Transform probs to log-probs for KL-divergence
@@ -76,9 +74,13 @@ class RelatednessPytorch(object):
 
         # Preparing data
         trainX, trainy, devX, devy, testX, testy = self.prepare_data(
-            self.train['X'], self.train['y'],
-            self.valid['X'], self.valid['y'],
-            self.test['X'], self.test['y'])
+            self.train["X"],
+            self.train["y"],
+            self.valid["X"],
+            self.valid["y"],
+            self.test["X"],
+            self.test["y"],
+        )
 
         # Training
         while not stop_train and self.nepoch <= self.maxepoch:
@@ -107,7 +109,9 @@ class RelatednessPytorch(object):
             all_costs = []
             for i in range(0, len(X), self.batch_size):
                 # forward
-                idx = torch.from_numpy(permutation[i:i + self.batch_size]).long().cuda()
+                idx = (
+                    torch.from_numpy(permutation[i : i + self.batch_size]).long().cuda()
+                )
                 Xbatch = X[idx]
                 ybatch = y[idx]
                 output = self.model(Xbatch)
@@ -126,9 +130,11 @@ class RelatednessPytorch(object):
         probas = []
         with torch.no_grad():
             for i in range(0, len(devX), self.batch_size):
-                Xbatch = devX[i:i + self.batch_size]
+                Xbatch = devX[i : i + self.batch_size]
                 if len(probas) == 0:
                     probas = self.model(Xbatch).data.cpu().numpy()
                 else:
-                    probas = np.concatenate((probas, self.model(Xbatch).data.cpu().numpy()), axis=0)
+                    probas = np.concatenate(
+                        (probas, self.model(Xbatch).data.cpu().numpy()), axis=0
+                    )
         return probas
